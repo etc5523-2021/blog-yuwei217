@@ -72,7 +72,7 @@ vaccinate<- read_csv(here::here("data/owid-covid-vaccin.csv"))
 ```
 
 # Analysis of COVID-19 in Turkey   
-## Daily new cases and new death   
+## Daily new cases and new deaths   
 The table below is the record of daily new cases, new deaths, and new recoveries of Turkey from January 22, 2020, to August 31, 2021. You can search for situations on different days.
 
 
@@ -185,10 +185,23 @@ compare_rate1 <- compare_rate %>%
 If you play with the above table, you'd be surprised to learn that Turkey is doing pretty well during the epidemic. For fully vaccinated rate, Turkey can rank 29th within 207 countries. For case rate, Turkey ranks 49, while ranking 168 for the mortality rate. We can imagine that Turkey has made great efforts to deal with the outbreak. However, a better tomorrow requires the concerted efforts of all countries in the world.
 
 
-# References
-Rami Krispin and Jarrett Byrnes (2021). coronavirus: The 2019 Novel Coronavirus COVID-19 (2019-nCoV) Dataset. R package version 0.3.22. https://CRAN.R-project.org/package=coronavirus    
+# References   
+
+Rami Krispin and Jarrett Byrnes (2021). coronavirus: The 2019 Novel Coronavirus COVID-19 (2019-nCoV) Dataset. R package version 0.3.22. https://CRAN.R-project.org/package=coronavirus     
+
+Baptiste Auguie (2017). gridExtra: Miscellaneous Functions for "Grid" Graphics. R package version 2.3.
+https://CRAN.R-project.org/package=gridExtra   
+
+Yihui Xie, Joe Cheng and Xianying Tan (2021). DT: A Wrapper of the JavaScript Library 'DataTables'. R package version 0.18. https://CRAN.R-project.org/package=DT   
+
+Hadley Wickham and Jim Hester (2021). readr: Read Rectangular Text Data. R package version 2.0.0.
+https://CRAN.R-project.org/package=readr   
+
+Richard Iannone, Joe Cheng and Barret Schloerke (2021). gt: Easily Create Presentation-Ready Display Tables. R package version 0.3.1. https://CRAN.R-project.org/package=gt   
 
 Mathieu, E., Ritchie, H., Ortiz-Ospina, E. et al. A global database of COVID-19 vaccinations. Nat Hum Behav (2021)
+
+
 
 
 
