@@ -1,0 +1,194 @@
+---
+title: "COVID-19 In Turkey(1)"
+description: |
+   The aim of this blog is to analyze and explore the influence of COVID-19 on Turkey.
+author:
+  - name: Yuwei Jiang
+    url: https://example.com/norajones
+date: 09-02-2021
+output:
+  distill::distill_article:
+    self_contained: false
+---
+
+```{css, echo = FALSE}
+h2{
+  color: steelblue;
+}
+
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      message = FALSE,
+                      warning = FALSE,
+                      fig.align = "center",
+                      out.width = "90%")
+```
+
+```{r include=FALSE}
+library(tidyverse)
+library(gridExtra)
+library(DT)
+library(readr)
+library(gt)
+library(coronavirus)
+```
+
+# Introduction   
+Turkey is one of the world's earliest permanently settled regions. And it is also a regional power  and a newly industrialized and developing country. The aim of this blog is to analyze and demonstrate the influence of COVID-19 on Turkey.
+
+# Data Description   
+This blog mainly uses two data sets. The first one is sourced from the coronavirus package in R.(Rami Krispin and Jarrett Byrnes (2021)). It provides a daily summary of the Coronavirus (COVID-19) cases by state/province.    
+
+|**Variable**      |**Class** |**Description**                 |
+|:-----------------|:---------|:-------------------------------|
+|date              |date      |Date recorded                   |
+|location          |character |Location of country             |
+|location_type     |character |Type of location                |
+|location_code     |character |Code of location                |
+|data_type         |character |Content of data                 | 
+|value             |numeric   |Number                          |
+
+
+The second one is from the website of our world in data. The Vaccination dataset uses the most recent official numbers from governments and health ministries worldwide. You can see all of the data on COVID-19 vaccinations.   
+
+|**Variable**      |**Class** |**Description**                 |
+|:-----------------|:---------|:-------------------------------|
+|date              |date      |Date recorded                   |
+|total cases       |numeric   |Total COVID-19 cases            |
+|new cases         |numeric   |Daily new COVID-19 cases        |
+|total deaths      |numeric   |Total COVID-19 deaths           |
+|new deaths        |numeric   |Daily new deaths                |
+|fully_vaccinated  |numeric   |Number of fully vaccinations    | 
+|population        |numeric   |Population of country           |
+
+
+
+```{r read_data}
+covid19<- refresh_coronavirus_jhu()
+vaccinate<- read_csv(here::here("data/owid-covid-vaccin.csv"))
+
+```
+
+# Analysis of COVID-19 in Turkey   
+## Daily new cases and new death   
+The table below is the record of daily new cases, new deaths, and new recoveries of Turkey from January 22, 2020, to August 31, 2021. You can search for situations on different days.
+
+
+```{r daily_interactive_table}
+
+turkey <- covid19 %>% 
+  filter(location== "Turkey") %>%
+  select(date,location,data_type,value) %>%
+  rename(number=value) %>%
+  arrange(date)
+DT::datatable(turkey, options = list(pageLength= 3 ))
+```
+
+## Tendencies of Daily New Cases and New deaths 
+The plot below demonstrates the tendencies of the daily new cases and new deaths. Combining with the above search table, it could be found that new cases get the maximum value of around sixty thousand in mid-April 2021, and new deaths get a peak number of around four hundred in early May 2021. Then they both experienced a clear downward trend until mid-July 2021. Unfortunately, the numbers are on the rise again until now, and the inflection point does not occur.     
+   
+```{r daily_new_tendency }
+turkey_new <- vaccinate %>%
+  filter(location == "Turkey") %>%
+  mutate(date=as.Date(date)) %>%
+  ggplot(aes(x = date,
+             y = new_cases)) +
+  geom_col(fill="blue") +
+ scale_x_date(name="date", breaks="3 month")
+
+
+turkey_die <- vaccinate %>%
+ filter(location == "Turkey") %>% 
+  mutate(date=as.Date(date)) %>%
+  ggplot(aes(x = date,
+             y = new_deaths)) +
+  geom_line(color ="red")+
+ scale_x_date(name="date", breaks="3 month")
+
+
+grid.arrange(turkey_new , turkey_die, ncol = 1, nrow = 2,
+             heights=c(5, 3))
+```
+
+
+## Summary of COVID-19 Epidemic in Turkey
+```{r summary_table1}
+turkey_vaccin <- vaccinate %>%
+  filter(location == "Turkey") %>%
+  select(date,total_cases,total_deaths,people_fully_vaccinated,population) %>%
+  arrange(desc(total_cases)) %>% 
+  head(1) 
+
+gt(turkey_vaccin) %>% 
+  tab_header(title = "Summary of COVID-19 Epidemic in Turkey ",
+             subtitle = "Total Number Until 30th August 2021") %>% 
+  tab_source_note(md("Source: Mathieu, E., Ritchie, H., Ortiz-Ospina, E. et al. A global database of COVID-19 vaccinations. Nat Hum Behav (2021)")) %>% 
+  cols_label(
+    date = html("Review Date"),
+    total_cases = html("Total Cases<br>(ppl)"),
+    total_deaths = html("Total Death<br>(ppl)"),
+    people_fully_vaccinated = 
+      html("Number of Fully Vaccinated<br>(ppl)"),
+    population = html("Population<br>(ppl)")
+  )
+```
+The above summary table shows the total cases, total deaths, and number of fully vaccinated people in turkey until August 30, 2021. There have already been nearly 64 million people get sick and 60 thousand people lose lives. To know the situation in Turkey more intuitively and more deeply, we can explore the next proportion summary table.
+
+## Proportion Summary of COVID-19 Epidemic in Turkey
+```{r summary_table2}
+turkey_rate <- turkey_vaccin %>%
+  mutate(case_rate = scales::percent(total_cases/population, 0.001)) %>%
+  mutate(death_rate = scales::percent(total_deaths/total_cases, 0.001)) %>%
+  mutate(vaccin_rate =  scales::percent(people_fully_vaccinated/population, 0.001)) %>%
+  select(date, case_rate, death_rate , vaccin_rate )
+ 
+gt(turkey_rate) %>% 
+  tab_header(title = "Proportion Summary of COVID-19 Epidemic in Turkey ",
+             subtitle = "Proportion Number Until 30th August 2021") %>% 
+  tab_source_note(md("Source: Mathieu, E., Ritchie, H., Ortiz-Ospina, E. et al. A global database of COVID-19 vaccinations. Nat Hum Behav (2021)")) %>% 
+  cols_label(
+    date = html("Review Date"),
+    case_rate = html("Total Case Rate<br>(percentage)"),
+    death_rate = html("Total Case Death Rate<br>(percentage)"),
+    vaccin_rate = 
+      html("Fully Vaccinated Rate<br>(percentage)")
+  )  
+
+```
+From the above proportion summary table, it could be seen that there are 7.486% of the population has been infected with coronavirus in Turkey, while the proportion of case deaths is 0.887%. The intuition is that the total case rate is a little high and the death rate is still under control by comparison with countries where the situations are grim. However, the fully vaccinated rate in Turkey is 43.2%, which is much lower than the rate which can bring herd immunity. It could be predicted that the numbers and rates with COVID-19 in Turkey will continue to increase for a time since the Delta virus is very transmissible. If Turkey people can complete vaccination as soon as possible to get herd immunity, the new situation might be worth looking forward to.
+
+## Compare with Other Countries
+```{r compare_with_other_countries}
+compare_vaccin <- vaccinate %>%
+  mutate(date=as.Date(date)) %>%
+  select(date,location,total_cases,total_deaths,people_fully_vaccinated,population) %>%
+  filter(date=="2021-08-30")
+
+compare_rate <- compare_vaccin %>%
+  mutate(case_rate = total_cases/population) %>%
+  mutate(death_rate = total_deaths/total_cases) %>%
+  mutate(vaccin_rate =  people_fully_vaccinated/population) %>%
+  select(date, location, case_rate, death_rate , vaccin_rate, population) %>%
+  arrange(desc(vaccin_rate))  
+  
+compare_rate1 <- compare_rate %>%
+  mutate(case_rate = scales::percent(case_rate, 0.001)) %>%
+  mutate(death_rate = scales::percent(death_rate , 0.001)) %>%
+  mutate(vaccin_rate =  scales::percent(vaccin_rate, 0.001))
+  
+  DT::datatable(compare_rate1 , options = list(pageLength= 5 ))
+```
+
+
+If you play with the above table, you'd be surprised to learn that Turkey is doing pretty well during the epidemic. For fully vaccinated rate, Turkey can rank 29th within 207 countries. For case rate, Turkey ranks 49, while ranking 168 for the mortality rate. We can imagine that Turkey has made great efforts to deal with the outbreak. However, a better tomorrow requires the concerted efforts of all countries in the world.
+
+
+# References
+Rami Krispin and Jarrett Byrnes (2021). coronavirus: The 2019 Novel Coronavirus COVID-19 (2019-nCoV) Dataset. R package version 0.3.22. https://CRAN.R-project.org/package=coronavirus    
+
+Mathieu, E., Ritchie, H., Ortiz-Ospina, E. et al. A global database of COVID-19 vaccinations. Nat Hum Behav (2021)
+
+
+
