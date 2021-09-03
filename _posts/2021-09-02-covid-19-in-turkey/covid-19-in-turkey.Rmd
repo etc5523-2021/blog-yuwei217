@@ -2,6 +2,9 @@
 title: "COVID-19 In Turkey(1)"
 description: |
    The aim of this blog is to analyze and explore the influence of COVID-19 on Turkey.
+categories:
+  - Turkey
+  - Cases and Vaccination
 author:
   - name: Yuwei Jiang
     url: https://example.com/norajones
@@ -36,6 +39,7 @@ library(coronavirus)
 ```
 
 # Introduction   
+
 
 Turkey is one of the world's earliest permanently settled regions. And it is also a regional power  and a newly industrialized and developing country. The aim of this blog is to analyze and demonstrate the influence of COVID-19 on Turkey.
 
