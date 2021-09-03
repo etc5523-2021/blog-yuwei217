@@ -74,7 +74,7 @@ vaccinate<- read_csv(here::here("data/owid-covid-vaccin.csv"))
 
 # Analysis of COVID-19 in Turkey   
 ## Daily new cases and new deaths   
-The table below is the record of daily new cases, new deaths, and new recoveries of Turkey from January 22, 2020, to August 31, 2021. You can search for situations on different days.
+The table below is the record of daily new cases, new deaths, and new recoveries of Turkey from January 22, 2020, to August 30, 2021. You can search for situations on different days.
 
 
 ```{r daily_interactive_table}
@@ -84,7 +84,7 @@ turkey <- covid19 %>%
   select(date,location,data_type,value) %>%
   rename(number=value) %>%
   arrange(date)
-DT::datatable(turkey, options = list(pageLength= 3 ))
+DT::datatable(turkey, options = list(pageLength= 3 ),caption = 'Table 1: COVID Daily Summary in Turkey')
 ```
 
 ## Tendencies of Daily New Cases and New deaths 
@@ -123,7 +123,7 @@ turkey_vaccin <- vaccinate %>%
   head(1) 
 
 gt(turkey_vaccin) %>% 
-  tab_header(title = "Summary of COVID-19 Epidemic in Turkey ",
+  tab_header(title = "Table 2: Summary of COVID-19 Epidemic in Turkey ",
              subtitle = "Total Number Until 30th August 2021") %>% 
   tab_source_note(md("Source: Mathieu, E., Ritchie, H., Ortiz-Ospina, E. et al. A global database of COVID-19 vaccinations. Nat Hum Behav (2021)")) %>% 
   cols_label(
@@ -146,7 +146,7 @@ turkey_rate <- turkey_vaccin %>%
   select(date, case_rate, death_rate , vaccin_rate )
  
 gt(turkey_rate) %>% 
-  tab_header(title = "Proportion Summary of COVID-19 Epidemic in Turkey ",
+  tab_header(title = "Table 3: Proportion Summary of COVID-19 Epidemic in Turkey ",
              subtitle = "Proportion Number Until 30th August 2021") %>% 
   tab_source_note(md("Source: Mathieu, E., Ritchie, H., Ortiz-Ospina, E. et al. A global database of COVID-19 vaccinations. Nat Hum Behav (2021)")) %>% 
   cols_label(
@@ -179,11 +179,11 @@ compare_rate1 <- compare_rate %>%
   mutate(death_rate = scales::percent(death_rate , 0.001)) %>%
   mutate(vaccin_rate =  scales::percent(vaccin_rate, 0.001))
   
-  DT::datatable(compare_rate1 , options = list(pageLength= 5 ))
+  DT::datatable(compare_rate1 , options = list(pageLength= 5), caption = 'Table 4: COVID Summary All Over the World until August 30, 2021 ')
 ```
 
 
-If you play with the above table, you'd be surprised to learn that Turkey is doing pretty well during the epidemic. For fully vaccinated rate, Turkey can rank 29th within 207 countries. For case rate, Turkey ranks 49, while ranking 168 for the mortality rate. We can imagine that Turkey has made great efforts to deal with the outbreak. However, a better tomorrow requires the concerted efforts of all countries in the world.
+If you play with table 4, you'd be surprised to learn that Turkey is doing pretty well during the epidemic. For fully vaccinated rate, Turkey can rank 29th within 207 countries. For case rate, Turkey ranks 49, while ranking 168 for the mortality rate. We can imagine that Turkey has made great efforts to deal with the outbreak. However, a better tomorrow requires the concerted efforts of all countries in the world.
 
 
 # References   
