@@ -36,6 +36,7 @@ library(coronavirus)
 ```
 
 # Introduction   
+
 Turkey is one of the world's earliest permanently settled regions. And it is also a regional power  and a newly industrialized and developing country. The aim of this blog is to analyze and demonstrate the influence of COVID-19 on Turkey.
 
 # Data Description   
