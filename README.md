@@ -26,9 +26,9 @@ The relevant blog post for this assessment is in [https://etc5523-2021.github.io
 
 This assessment is due Fri Sep 17 2021 11.55PM AEST.
 
-My selected country is [FILL].
+My selected country is [Oman].
 
-The relevant blog post for this assessment is in [FILL].html
+The relevant blog post for this assessment is in [https://etc5523-2021.github.io/blog-yuwei217/posts/2021-09-15-covid-19-in-bolivia/].
 
 - [ ] Selected a new country
 - [ ] Data Story 1
