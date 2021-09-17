@@ -1,0 +1,203 @@
+---
+title: "COVID-19 In Oman"
+description: |
+   The purpose of this blog is to visualize the influence of COVID in Oman.
+categories:
+  - Oman
+  - Cases and Vaccination
+author:
+  - name: Yuwei Jiang
+    url: https://example.com/norajones
+date: 09-15-2021
+output:
+  distill::distill_article:
+    self_contained: false
+---
+
+
+```{css, echo = FALSE}
+h2{
+  color: steelblue;
+}
+
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      message = FALSE,
+                      warning = FALSE,
+                      fig.align = "center",
+                      out.width = "90%")
+```
+
+```{r include=FALSE}
+library(tidyverse)
+library(gridExtra)
+library(readr)
+library(highcharter)
+library(xts)
+library(dygraphs)
+library(DT)
+library(readr)
+library(gt)
+options(scipen=200)
+```
+
+# Introduction   
+Perhaps many people have not heard of Oman, because it's a small and low-key country in the Middle East. However, Oman is categorized as a high-income economy and ranks as the 69th most peaceful country in the world according to the Global Peace Index. Oman is a member of the United Nations, the Arab League. It has sizeable oil reserves, ranking 25th globally. A significant portion of its economy involves tourism and trading fish, dates and other agricultural produce. Oman means peaceful land in Arabic. However, no place could be peaceful anymore during the COVID-19 epidemic, Oman is no exception. The purpose of this blog is to visualize the influence of COVID in Oman. 
+
+
+# Data Description   
+This blog mainly uses the data from the website of our world in data. The Vaccination dataset uses the most recent official numbers from governments and health ministries worldwide. You can see all of the data on COVID-19 vaccinations.   
+
+|**Variable**      |**Class** |**Description**                 |
+|:-----------------|:---------|:-------------------------------|
+|date              |date      |Date recorded                   |
+|total cases       |numeric   |Total COVID-19 cases            |
+|new cases         |numeric   |Daily new COVID-19 cases        |
+|total deaths      |numeric   |Total COVID-19 deaths           |
+|new deaths        |numeric   |Daily new deaths                |
+|fully_vaccinated  |numeric   |Number of fully vaccinations    | 
+|population        |numeric   |Population of country           |
+|total_vaccinations|numeric   |total number of vaccinations    |
+|people_vaccinated |numeric   |number of people get vaccinated |   
+   
+   
+
+# Analysis of COVID-19 in Turkey      
+### Data Story one: Illness and Deaths
+```{r read_data}
+vaccinate<- read_csv(here::here("data/owid-covid-vaccin.csv"))
+
+```
+
+
+```{r total, fig.cap= " The tendencies of total COVID cases and deaths", fig.width=8, fig.align='center'}
+oman_new <- vaccinate %>%
+  filter(location == "Oman") %>%
+  mutate(date=as.Date(date)) %>%
+  ggplot(aes(x = date,
+             y = total_cases)) +
+  geom_line(size=1.5, color="steelblue",  linetype ="dashed") +
+ scale_x_date(name="date", breaks="3 month")+
+    theme_bw()+
+  ggtitle("Trend of Total Coivd Cases In Oman")
+
+
+oman_die <- vaccinate %>%
+ filter(location == "Oman") %>% 
+  mutate(date=as.Date(date)) %>%
+  ggplot(aes(x = date,
+             y = total_deaths)) +
+  geom_line(size=1.5, color ="orange", linetype ="dashed")+
+ scale_x_date(name="date", breaks="3 month")+
+  theme_bw()+
+  ggtitle("Trend of Total Coivd Deaths In Oman")
+
+
+ grid.arrange(oman_new , oman_die, ncol = 1, nrow = 2,
+             heights=c(5, 3))
+
+```
+The figure\@ref(fig:total) demonstrates the overall trends of COVID cases and deaths in Oman. It can be seen that the trends of total cases and total deaths are very similar, the changes of the slope are also look alike. However, the good news is that they are not in the same order of magnitude. The maximum value of total cases is about three hundred thousand, while the number of total deaths is about four thousand. Meanwhile, we can find that the growth rates for both lines tend to be stable. Death is a sad thing, all we can hope for is that the death rate is not high during the epidemic. 
+
+
+
+```{r daily, fig.cap= " Comparison of Daily New Cases and New Deaths", fig.width=12, fig.align='center'}
+oman <- vaccinate %>%
+  filter(location == "Oman") %>%
+  select(date,new_cases, new_deaths) 
+  #filter(new_cases>0&new_deaths>0)
+
+oman %>% 
+  xts(order.by=as.POSIXct(oman$date)) %>% 
+  dygraph( main = "Comparison of New Cases and New Deaths", 
+           xlab = NULL,
+           ylab = NULL,
+           group = NULL, 
+           elementId = NULL, 
+           width = NULL,
+           height = NULL)%>% 
+  dyLegend(show = "always")%>%
+  dyOptions(stackedGraph = TRUE) %>%
+  dyOptions(colors = RColorBrewer::brewer.pal(3, "Set2")) %>%
+  dySeries("new_deaths", axis = 'y2') %>% 
+  dyAxis("y", label = "New Cases") %>%
+  dyAxis("y2", label = "New Deaths") %>%
+  dyOptions(axisLineWidth = 1, fillGraph = FALSE, drawGrid = FALSE) %>% 
+  dyRangeSelector()
+
+```
+
+Actually, figure\@ref(fig:daily) does not looks nice and comfortable, because the lines are not smooth and jumping up and down constantly. However, if you observe and play with this plot carefully, you would find some points. The first thing is there are many zeros in the dataset which means there are many days in which the case and death numbers are not recorded. Secondly, it is strange to see the recorded values go up and down in short days. It's easy to see that one day the numbers are big, then the next few days they drop off dramatically. Then for daily new cases, it could be found that there are four little peaks, which are around July 2020, October 2020, April 2021 and July 2021. But for daily new deaths, the peaks often come later. The reason might be that the sharp rise in the number of patients led to a medical run, resulting in a gradual rise in the death toll. Among all the peaks, the highest is around July 2021. As everyone knows, the Delta virus is too powerful to avoid. This might explain the highest peak in Oman.    
+Personally speaking, Oman has done a good job in epidemic prevention and control. When you calculate the death rate, you will find the number is rather lower than in many other countries. Since the population and population density in Oman is not large, and the medical service system is relatively complete, all these laid the foundation for epidemic control. On the other hand, Oman is a constitutional monarchy, the social security in Oman is very good, and the people there are very peaceful, so it might be easier to take some prevention measures. However, when it comes to the strange data as mentioned above, there might be cases where records are not timely or some other reasons. This situation might have a relationship with the country's system.   
+
+### Data Story two: Vaccination and Tomorrow
+
+
+```{r vaccine, fig.cap= " Trend of Vaccinations in Oman", fig.width=8, fig.align='center'}
+
+oman4 <- vaccinate %>%
+  filter(location == "Oman") %>%
+  # filter(new_cases>0&new_deaths>0)%>%
+  select(date, total_vaccinations, people_vaccinated, people_fully_vaccinated) %>%
+  filter(date>"2021/01/01")
+
+ highchart() %>% 
+    hc_chart(type = "column") %>%
+    hc_xAxis(categories = oman4$date) %>%
+    hc_yAxis(title = list(text = "Number")) %>%
+    hc_add_series(name="total_vaccinations",data = round(oman4$total_vaccinations),color='orange') %>%
+  hc_add_series(name="people_vaccinated",data = oman4$people_vaccinated, color='green')%>%
+   hc_add_series(name=" people_fully_vaccinated",data = oman4$people_fully_vaccinated, color='red') %>%
+   hc_title(text = "Trend of Vaccinations in Oman",align="center")
+```
+We can know from the news that lockdown in Oman has been removed from late August and entry to public places will only be for those who are fully vaccinated from September 1. When we look at the figure\@ref(fig:vaccine), though it still lacks records of many days, it shows that the number of vaccinated people is rather few before June, not even to say the fully vaccinated people. But after middle June, the situation has improved a lot. The numbers of vaccinated people have a rapid rise, especially in July and August. However, the growth rate of fully vaccinated people does not that high. It could be guessed that Oman has chosen to give priority to those who have not been vaccinated. Meanwhile, Oman has been regularly imposing lockdowns whenever there was a spike in infections. However, from the figure\@ref(fig:daily), we can see that the new cases and deaths in June and July have a large increase. people might feel that it necessary to get vaccinated then. So you can see the total number of vaccinations and vaccinated people are all rise dramatically after June. And in order to participate in more social activities, people who suffer in lockdowns for a long time must have the motivation to get vaccinated.   
+Fighting the infection will not be an uphill task if you are vaccinated, but as everyone has been saying, taking a vaccine is not a guarantee against COVID-19. Masks and social distancing should continue to be the norm for some more time. Vaccines are not necessarily the answer to a better tomorrow, but they are essential.  
+
+
+# Summary
+
+```{r compare_with_other_countries}
+compare_vaccin <- vaccinate %>%
+  mutate(date=as.Date(date)) %>%
+  select(date,location,total_cases,total_deaths,people_fully_vaccinated,population) %>%
+  filter(date=="2021-08-30")
+
+compare_rate <- compare_vaccin %>%
+  mutate(case_rate = total_cases/population) %>%
+  mutate(death_rate = total_deaths/total_cases) %>%
+  mutate(vaccin_rate =  people_fully_vaccinated/population) %>%
+  select(date, location, case_rate, death_rate , vaccin_rate, population) %>%
+  arrange(desc(vaccin_rate))  
+  
+compare_rate1 <- compare_rate %>%
+  mutate(case_rate = scales::percent(case_rate, 0.001)) %>%
+  mutate(death_rate = scales::percent(death_rate , 0.001)) %>%
+  mutate(vaccin_rate =  scales::percent(vaccin_rate, 0.001))
+  
+  DT::datatable(compare_rate1 , options = list(pageLength= 5), caption = 'COVID Summary All Over the World until August 30, 2021 ')
+```
+The table above is ranked by vaccination rates. If you search Oman in the above table, you will find out though the vaccination rate of 20% in Oman is not high, it still ranks 54 among all the 207 locations. And the case rate and death rate also have better performance than most countries. Since Oman means peaceful land in Arabic, I hope Oman could return to peace and happiness soon.
+
+# References 
+Mathieu, E., Ritchie, H., Ortiz-Ospina, E. et al. A global database of COVID-19 vaccinations. Nat Hum Behav (2021)
+
+Yihui Xie, Joe Cheng and Xianying Tan (2021). DT: A Wrapper of the JavaScript Library 'DataTables'. R package version 0.18. https://CRAN.R-project.org/package=DT   
+
+Hadley Wickham and Jim Hester (2021). readr: Read Rectangular Text Data. R package version 2.0.0.
+https://CRAN.R-project.org/package=readr   
+
+Richard Iannone, Joe Cheng and Barret Schloerke (2021). gt: Easily Create Presentation-Ready Display Tables. R package version 0.3.1. https://CRAN.R-project.org/package=gt   
+
+Joshua Kunst (2020). highcharter: A Wrapper for the 'Highcharts' Library. R package version 0.8.2.
+https://CRAN.R-project.org/package=highcharter
+
+Jeffrey A. Ryan and Joshua M. Ulrich (2020). xts: eXtensible Time Series. R package version 0.12.1.
+https://CRAN.R-project.org/package=xts
+
+Dan Vanderkam, JJ Allaire, Jonathan Owen, Daniel Gromer and Benoit Thieurmel (2018). dygraphs: Interface to 'Dygraphs' Interactive Time Series Charting Library. R package version 1.1.1.6.
+https://CRAN.R-project.org/package=dygraphs
+
+
+
